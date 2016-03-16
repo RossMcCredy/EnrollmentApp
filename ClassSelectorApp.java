@@ -67,8 +67,6 @@ public class ClassSelectorApp {
         }
         catch (SQLException SQL) {
             SQL.printStackTrace();
-        } catch (Exception exc) {
-            exc.printStackTrace();
         }
     }
     public static void createStudent() {
@@ -123,8 +121,6 @@ public class ClassSelectorApp {
             }
         } catch (java.sql.SQLException SQL) {
             SQL.printStackTrace();
-        } catch (Exception EXC) {
-            EXC.printStackTrace();
         }
 
     }
@@ -161,8 +157,6 @@ public class ClassSelectorApp {
             }
         } catch (java.sql.SQLException SQL) {
             SQL.printStackTrace();
-        } catch (Exception EXC) {
-            EXC.printStackTrace();
         }
     }
 
@@ -192,8 +186,6 @@ public class ClassSelectorApp {
 
         } catch (java.sql.SQLException SQL) {
             SQL.printStackTrace();
-        } catch (Exception EXC) {
-            EXC.printStackTrace();
         }
     }
 }

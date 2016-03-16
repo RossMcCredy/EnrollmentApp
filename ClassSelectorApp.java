@@ -187,7 +187,7 @@ public class ClassSelectorApp {
                 }
             }
             if (!found) {
-                System.out.println("This Student does not Exist!");
+                System.out.println("This Student does not Exist or is not enrolled in any classes!");
             }
 
         } catch (java.sql.SQLException SQL) {

@@ -140,10 +140,7 @@ public class ClassSelectorApp {
 
             System.out.println("Enter Class ID from Classes Listed Above to Join: ");
             String selectedClass = sc.nextLine();
-            rs = myStmt.executeQuery("SELECT * FROM ClassSelector.student_x_class" +
-                    "JOIN classes on ClassSelector.student_x_class.class_id = ClassSelector.classes.class_id" +
-                    "JOIN students on ClassSelector.student_x_class.student_id = ClassSelector.students.student_id" +
-                    "Where ClassSelector.student_x_class.student_id = " + selectedClass);
+            rs = myStmt.executeQuery("SELECT * FROM ClassSelector.classes WHERE class_id = " + selectedClass);
             while (rs.next()) {
                 String innerJoin = (userEnterIdAsName + " has been added to " + rs.getString("class_name") + " " + rs.getString("class_id"));
                 System.out.println(innerJoin);
@@ -169,28 +166,21 @@ public class ClassSelectorApp {
         }
     }
 
-    public static void listClasses() {
+    static void listClasses() {
         System.out.println("\nStudent Enrollment\n");
         try {
+            Scanner input = new Scanner(System.in);
             System.out.println("Enter Student ID to See What Classes they are enrolled in: ");
-            user_entered_student_id = sc.nextLine();
+            String user_entered_student_id = input.nextLine();
 
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ClassSelector?autoReconnect=true&useSSL=false", "root", "Volks91!");
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ClassSelector?autoReconnect=true&useSSL=false", "root", "Volks91!");
+            Statement myStmt = con.createStatement();
 
+            ResultSet rs;
             boolean found = false;
-            String listStudentEnrollmentInfo =
-                    "SELECT ClassSelector.student_x_class.student_id, " +
-                            "ClassSelector.students.student_name, " +
-                            "ClassSelector.students.hometown, " +
-                            "ClassSelector.classes.class_name, " +
-                            "ClassSelector.classes.description " +
-                            "FROM ClassSelector.student_x_class " +
-                            "JOIN classes on ClassSelector.student_x_class.class_id = ClassSelector.classes.class_id " +
-                            "JOIN students on ClassSelector.student_x_class.student_id = ClassSelector.students.student_id " +
-                            "Where ClassSelector.student_x_class.student_id =" + user_entered_student_id;
-            rs = myStmt.executeQuery(listStudentEnrollmentInfo);
+            rs = myStmt.executeQuery("SELECT student_id, student_name, class_id, class_name  FROM ClassSelector.student_x_class WHERE student_id = " + user_entered_student_id);
             while (rs.next()) {
-                String studentInClass = (rs.getString("student_id") + "\t" + rs.getString("student_name") + " \t " + rs.getString("class_id") + " \t" + rs.getString("class_name"));
+                String studentInClass = (rs.getString("student_id") + "\t" + rs.getString("student_name") + "  " + rs.getString("class_id") + " " + rs.getString("class_name"));
                 if (user_entered_student_id.equals(rs.getString("student_id"))) {
                     System.out.println(studentInClass);
                     found = true;

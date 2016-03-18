@@ -30,6 +30,9 @@ public class ClassSelectorApp {
                 case 3:
                     listClasses();
                     break;
+                case 4:
+                    listAllClasses();
+                    break;
                 default:
                     System.out.println("Invalid Input");
             }
@@ -40,13 +43,13 @@ public class ClassSelectorApp {
         try {
             Scanner sc = new Scanner(System.in);
             System.out.println("\n Class Selection Menu");
-            System.out.println("**********************************");
+            System.out.println("*********************************************");
             System.out.println("0: Exit Menu");
             System.out.println("1: Create New Student");
             System.out.println("2: Sign Student Up For a Class");
             System.out.println("3: List Classes for Selected Student");
             System.out.println("4: List All Classes with Students Enrolled");
-            System.out.println("**********************************");
+            System.out.println("*********************************************");
             System.out.println("Enter a choice: ");
             return sc.nextInt();
 
@@ -57,8 +60,9 @@ public class ClassSelectorApp {
         }
         return 0;
     }
-    public static void getStudentInfo(){
-        try{
+
+    public static void getStudentInfo() {
+        try {
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ClassSelector?autoReconnect=true&useSSL=false", "root", "Volks91!");
             System.out.println("Enter a Student ID: ");
             student_id = sc.nextLine();
@@ -66,11 +70,11 @@ public class ClassSelectorApp {
             student_name = sc.nextLine();
             System.out.println("Enter Student Hometown: ");
             hometown = sc.nextLine();
-        }
-        catch (SQLException SQL) {
+        } catch (SQLException SQL) {
             SQL.printStackTrace();
         }
     }
+
     public static void createStudent() {
         System.out.println("\nCreate Student\n");
         try {
@@ -88,7 +92,7 @@ public class ClassSelectorApp {
             System.out.println("You have entered duplicate data, please try again");
         } catch (java.util.InputMismatchException mm) {
             mm.printStackTrace();
-        }catch (SQLException SQL) {
+        } catch (SQLException SQL) {
             System.out.println("You have entered an incorrect value type");
         } catch (Exception exc) {
             exc.printStackTrace();
@@ -201,6 +205,27 @@ public class ClassSelectorApp {
 
         } catch (java.sql.SQLException SQL) {
             SQL.printStackTrace();
+        }
+    }
+
+    static void listAllClasses() {
+        System.out.println("\nClasses With Enrollment\n");
+        try {
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ClassSelector?autoReconnect=true&useSSL=false", "root", "Volks91!");
+            String totalEnroll = ("SELECT * FROM ClassSelector.student_x_class ORDER BY class_id");
+            myStmt = con.prepareStatement(totalEnroll);
+
+            rs = myStmt.executeQuery(totalEnroll);
+            while (rs.next()) {
+                String totalEnrollment = rs.getString("class_id") + "\t" + rs.getString("class_name") + "\t"  + rs.getString("student_id") + "\t" + rs.getString("student_name");
+                while(!"class_id".equals("class_id")) {
+                    System.out.println("\n");
+
+                }
+                System.out.println(totalEnrollment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

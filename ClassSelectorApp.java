@@ -131,23 +131,30 @@ public class ClassSelectorApp {
         }
 
     }
+
     public static void classFullCheck() {
         try {
             String currentNumberInClassAsString = ("SELECT class_id, COUNT(*) FROM ClassSelector.student_x_class WHERE class_id = " + selectedClass);
             rs = myStmt.executeQuery(currentNumberInClassAsString);
             int currentNumberInClassAsInt = 0;
-            if(rs.next()){
+            if (rs.next()) {
                 currentNumberInClassAsInt = rs.getInt(2);
             }
             String classSizeAsString = ("SELECT * FROM ClassSelector.classes WHERE class_id = " + selectedClass);
             rs = myStmt.executeQuery(classSizeAsString);
             int classSizeAsInt = 0;
-            if(rs.next()){
+            if (rs.next()) {
                 classSizeAsInt = rs.getInt("class_size");
             }
-            if (currentNumberInClassAsInt >= classSizeAsInt){
-                    System.out.println("Sorry, this class is Full!");
-                menu();
+            if (currentNumberInClassAsInt >= classSizeAsInt) {
+                String updateStatus = "Update ClassSelector.classes SET status = ? WHERE class_id = " + selectedClass;
+                PreparedStatement pStmt = con.prepareStatement(updateStatus);
+                pStmt.setBoolean(1, true);
+                pStmt.executeUpdate();
+
+                System.out.println("Sorry, this class is Full! Select a different Class:");
+                System.out.println("\nSign Up For a Class\n");
+                addClass();
             }
         } catch (java.sql.SQLException SQL) {
             SQL.printStackTrace();
@@ -172,25 +179,23 @@ public class ClassSelectorApp {
                 System.out.println(innerJoin);
                 String student_x_classJoin = "INSERT INTO student_x_class" + "(student_id, student_name, class_id, class_name)" + "VALUES (?, ?, ?, ?)";
                 PreparedStatement pStmt = con.prepareStatement(student_x_classJoin);
-                    pStmt.setString(1, user_entered_student_id);
-                    pStmt.setString(2, userEnterIdAsName);
-                    pStmt.setString(3, rs.getString("class_id"));
-                    pStmt.setString(4, rs.getString("class_name"));
-                    pStmt.executeUpdate();
-                    System.out.println("Would you like to enroll " + userEnterIdAsName + " into another class? (Y/N)");
-                    String addAdditionalClass = sc.nextLine();
-                    if (addAdditionalClass.equalsIgnoreCase("Y")) {
-                        addClass();
-                    } else if (addAdditionalClass.equalsIgnoreCase("N")) {
-                        return;
-                    }
+                pStmt.setString(1, user_entered_student_id);
+                pStmt.setString(2, userEnterIdAsName);
+                pStmt.setString(3, rs.getString("class_id"));
+                pStmt.setString(4, rs.getString("class_name"));
+                pStmt.executeUpdate();
+                System.out.println("Would you like to enroll " + userEnterIdAsName + " into another class? (Y/N)");
+                String addAdditionalClass = sc.nextLine();
+                if (addAdditionalClass.equalsIgnoreCase("Y")) {
+                    addClass();
+                } else if (addAdditionalClass.equalsIgnoreCase("N")) {
+                    return;
                 }
-        }
-        catch (java.sql.SQLException SQL) {
+            }
+        } catch (java.sql.SQLException SQL) {
             SQL.printStackTrace();
         }
     }
-
 
     static void listClasses() {
         System.out.println("\nStudent Enrollment\n");

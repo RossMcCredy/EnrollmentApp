@@ -14,6 +14,7 @@ public class ClassSelectorApp {
     static String hometown;
     static String userEnterIdAsName;
     static String user_entered_student_id;
+    static String selectedClass;
 
     public static void main(String[] args) throws SQLException {
 
@@ -118,7 +119,7 @@ public class ClassSelectorApp {
                 String confirm = sc.nextLine();
 
                 if (confirm.equalsIgnoreCase("Y")) {
-                    additionalClass();
+                    addClass();
 
                 } else if (confirm.equalsIgnoreCase("N")) {
                     System.out.println("Oops, let start over");
@@ -130,8 +131,30 @@ public class ClassSelectorApp {
         }
 
     }
+    public static void classFullCheck() {
+        try {
+            String currentNumberInClassAsString = ("SELECT class_id, COUNT(*) FROM ClassSelector.student_x_class WHERE class_id = " + selectedClass);
+            rs = myStmt.executeQuery(currentNumberInClassAsString);
+            int currentNumberInClassAsInt = 0;
+            if(rs.next()){
+                currentNumberInClassAsInt = rs.getInt(2);
+            }
+            String classSizeAsString = ("SELECT * FROM ClassSelector.classes WHERE class_id = " + selectedClass);
+            rs = myStmt.executeQuery(classSizeAsString);
+            int classSizeAsInt = 0;
+            if(rs.next()){
+                classSizeAsInt = rs.getInt("class_size");
+            }
+            if (currentNumberInClassAsInt >= classSizeAsInt){
+                    System.out.println("Sorry, this class is Full!");
+                menu();
+            }
+        } catch (java.sql.SQLException SQL) {
+            SQL.printStackTrace();
+        }
+    }
 
-    public static void additionalClass() {
+    public static void addClass() {
 
         try {
             rs = myStmt.executeQuery("SELECT * FROM ClassSelector.classes");
@@ -139,34 +162,35 @@ public class ClassSelectorApp {
                 String availableClasses = rs.getString("class_id") + "\t" + rs.getString("class_name") + "\t" + rs.getString("description");
                 System.out.println(availableClasses);
             }
-
             System.out.println("Enter Class ID from Classes Listed Above to Join: ");
-            String selectedClass = sc.nextLine();
+            selectedClass = sc.nextLine();
             rs = myStmt.executeQuery("SELECT * FROM ClassSelector.classes WHERE class_id = " + selectedClass);
+
             while (rs.next()) {
+                classFullCheck();
                 String innerJoin = (userEnterIdAsName + " has been added to " + rs.getString("class_name") + " " + rs.getString("class_id"));
                 System.out.println(innerJoin);
-                String student_x_classJoin = "INSERT IGNORE INTO student_x_class" + "(student_id,student_name, class_id, class_name)" + "VALUES (?, ?, ?, ?)";
+                String student_x_classJoin = "INSERT INTO student_x_class" + "(student_id, student_name, class_id, class_name)" + "VALUES (?, ?, ?, ?)";
                 PreparedStatement pStmt = con.prepareStatement(student_x_classJoin);
-                pStmt.setString(1, user_entered_student_id);
-                pStmt.setString(2, userEnterIdAsName);
-                pStmt.setString(3, rs.getString("class_id"));
-                pStmt.setString(4, rs.getString("class_name"));
-                pStmt.executeUpdate();
-                System.out.println("Would you like to enroll " + userEnterIdAsName + " into another class? (Y/N)");
-                String addAdditionalClass = sc.nextLine();
-                if (addAdditionalClass.equalsIgnoreCase("Y")) {
-                    additionalClass();
-                } else if (addAdditionalClass.equalsIgnoreCase("N")) {
-                    return;
+                    pStmt.setString(1, user_entered_student_id);
+                    pStmt.setString(2, userEnterIdAsName);
+                    pStmt.setString(3, rs.getString("class_id"));
+                    pStmt.setString(4, rs.getString("class_name"));
+                    pStmt.executeUpdate();
+                    System.out.println("Would you like to enroll " + userEnterIdAsName + " into another class? (Y/N)");
+                    String addAdditionalClass = sc.nextLine();
+                    if (addAdditionalClass.equalsIgnoreCase("Y")) {
+                        addClass();
+                    } else if (addAdditionalClass.equalsIgnoreCase("N")) {
+                        return;
+                    }
                 }
-            }
-        } catch (java.sql.SQLException SQL) {
+        }
+        catch (java.sql.SQLException SQL) {
             SQL.printStackTrace();
-        } catch (Exception EXC) {
-            EXC.printStackTrace();
         }
     }
+
 
     static void listClasses() {
         System.out.println("\nStudent Enrollment\n");
@@ -216,13 +240,16 @@ public class ClassSelectorApp {
             myStmt = con.prepareStatement(totalEnroll);
 
             rs = myStmt.executeQuery(totalEnroll);
+            String prevClassId = null;
             while (rs.next()) {
-                String totalEnrollment = rs.getString("class_id") + "\t" + rs.getString("class_name") + "\t"  + rs.getString("student_id") + "\t" + rs.getString("student_name");
-                while(!"class_id".equals("class_id")) {
-                    System.out.println("\n");
+                String currentClassId = rs.getString("class_id");
+                String totalEnrollment = rs.getString("student_id") + "\t" + rs.getString("student_name");
+                if (currentClassId != null && !currentClassId.equals(prevClassId)) {
+                    System.out.println("\n" + rs.getString("class_name") + "\t " + rs.getString("class_id") + "\n");
 
                 }
                 System.out.println(totalEnrollment);
+                prevClassId = currentClassId;
             }
         } catch (SQLException e) {
             e.printStackTrace();
